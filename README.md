@@ -4,13 +4,6 @@ A full-stack web application for managing projects, assigning tasks, and trackin
 
 ---
 
-## 🔗 Links
-
-| | |
-|---|---|
-| **Live URL** | _Add your Railway URL here_ |
-| **GitHub Repo** | _Add your GitHub repo link here_ |
-| **Demo Video** | _Add your video link here_ |
 
 ---
 
