@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaskFlow — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0c0d10;
+      --surface: #14161b;
+      --surface2: #1c1f27;
+      --border: #252830;
+      --accent: #4f7fff;
+      --accent-glow: rgba(79,127,255,0.18);
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --danger: #f87171;
+      --success: #34d399;
+      --radius: 14px;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    /* Left panel */
+    .hero {
+      flex: 1;
+      background: linear-gradient(135deg, #0f1623 0%, #0c1a35 50%, #071024 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,127,255,0.12) 0%, transparent 70%);
+      top: -100px; left: -100px;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.10) 0%, transparent 70%);
+      bottom: -80px; right: 40px;
+    }
+
+    .grid-lines {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(79,127,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(79,127,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 64px;
+    }
+
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-icon svg { width: 22px; height: 22px; fill: white; }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 3rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 380px;
+      line-height: 1.7;
+    }
+
+    .feature-list {
+      margin-top: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    .feature-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Right panel */
+    .auth-panel {
+      width: 480px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 48px;
+      border-left: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0 0 14px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-btn.active { color: var(--text); }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .form-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .form-subtitle {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: #9ca3af;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
+    input::placeholder { color: #4b5563; }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    select option { background: var(--surface2); }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover {
+      background: #3d6bef;
+      box-shadow: 0 4px 20px rgba(79,127,255,0.3);
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 0.82rem;
+      color: var(--accent);
+      text-decoration: none;
+      margin-top: -12px;
+      margin-bottom: 20px;
+      transition: opacity 0.2s;
+    }
+
+    .forgot-link:hover { opacity: 0.75; }
+
+    @media (max-width: 900px) {
+      .hero { display: none; }
+      .auth-panel { width: 100%; border-left: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LEFT HERO -->
+  <div class="hero">
+    <div class="grid-lines"></div>
+    <div class="hero-content">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        </div>
+        <span class="logo-text">TaskFlow</span>
+      </div>
+      <h1>Manage work<br/>with <span>precision.</span></h1>
+      <p>A streamlined workspace for teams that value clarity, speed, and accountability.</p>
+      <div class="feature-list">
+        <div class="feature-item"><div class="feature-dot"></div>Role-based access control</div>
+        <div class="feature-item"><div class="feature-dot"></div>Project & task management</div>
+        <div class="feature-item"><div class="feature-dot"></div>Real-time status tracking</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT AUTH PANEL -->
+  <div class="auth-panel">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('login', this)">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('signup', this)">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="tab-panel active" id="tab-login">
+      <div class="form-title">Welcome back</div>
+      <div class="form-subtitle">Enter your credentials to continue</div>
+      <form action="/login" method="POST">
+        <div class="field">
+          <label>Username</label>
+          <input name="username" placeholder="your_username" required/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input name="password" type="password" placeholder="••••••••" required/>
+        </div>
+        <a href="/forgot" class="forgot-link">Forgot password?</a>
+        <button class="btn" type="submit">Sign In</button>
+      </form>
+    </div>
+
+    <!-- SIGNUP -->
+    <div class="tab-panel" id="tab-signup">
+      <div class="form-title">Get started</div>
+      <div class="form-subtitle">Create your TaskFlow account</div>
+      <form action="/signup" method="POST">
+        <div class="field">
+          <label>Username</label>
+          <input name="username" placeholder="choose_a_username" required/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input name="password" type="password" placeholder="••••••••" required/>
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <select name="role">
+            <option value="admin">Admin</option>
+            <option value="member">Member</option>
+          </select>
+        </div>
+        <button class="btn" type="submit">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+  </script>
+</body>
+</html>

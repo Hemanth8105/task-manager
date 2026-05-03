@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TaskFlow — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080a0f;
+      --surface: #10131a;
+      --surface2: #181c26;
+      --surface3: #1e2330;
+      --border: #1f2436;
+      --border2: #2a3048;
+      --accent: #4f7fff;
+      --accent2: #7c5cfc;
+      --accent-glow: rgba(79,127,255,0.18);
+      --text: #e2e6f0;
+      --text2: #a8b0c8;
+      --muted: #5a6380;
+      --success: #2dd4a0;
+      --warning: #f5a623;
+      --danger: #f06e6e;
+      --radius: 14px;
+      --radius-sm: 9px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      display: flex;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 248px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-top {
+      padding: 26px 22px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo { display: flex; align-items: center; gap: 11px; }
+
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(79,127,255,0.28);
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg { width: 19px; height: 19px; fill: white; }
+
+    .logo-text {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-section { padding: 18px 12px 6px; }
+
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 10px;
+      margin-bottom: 6px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-item:hover { color: var(--text); background: var(--surface2); }
+
+    .nav-item.active {
+      color: var(--text);
+      background: rgba(79,127,255,0.1);
+      border: 1px solid rgba(79,127,255,0.15);
+    }
+
+    .nav-item.active .nav-icon { opacity: 1; color: var(--accent); }
+
+    .nav-icon { width: 17px; height: 17px; opacity: 0.6; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--surface3);
+      color: var(--text2);
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 16px 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 0.85rem; font-weight: 600; }
+    .user-role { font-size: 0.72rem; color: var(--muted); text-transform: capitalize; }
+
+    .logout-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%;
+      background: none;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .logout-btn:hover { color: var(--danger); border-color: var(--danger); background: rgba(240,110,110,0.06); }
+
+    /* MAIN */
+    .main {
+      margin-left: 248px;
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOPBAR */
+    .topbar {
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: rgba(8,10,15,0.88);
+      backdrop-filter: blur(16px);
+      z-index: 50;
+    }
+
+    .breadcrumb { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .breadcrumb span { color: var(--text2); }
+
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .badge-admin { background: rgba(79,127,255,0.12); color: var(--accent); border: 1px solid rgba(79,127,255,0.2); }
+    .badge-admin .badge-dot { background: var(--accent); }
+    .badge-member { background: rgba(45,212,160,0.12); color: var(--success); border: 1px solid rgba(45,212,160,0.2); }
+    .badge-member .badge-dot { background: var(--success); }
+
+    /* CONTENT */
+    .content { padding: 28px 32px; flex: 1; }
+
+    /* STAT CARDS */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s, transform 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .stat-card:nth-child(2) { animation-delay: .06s; }
+    .stat-card:nth-child(3) { animation-delay: .12s; }
+    .stat-card:nth-child(4) { animation-delay: .18s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--stat-color, var(--accent));
+      opacity: 0.55;
+    }
+
+    .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+    .stat-icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--stat-bg, rgba(79,127,255,0.1));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .stat-icon svg { width: 16px; height: 16px; stroke: var(--stat-color, var(--accent)); fill: none; stroke-width: 2; }
+
+    .stat-label { font-size: 0.72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.1rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      color: var(--stat-color, var(--text));
+      line-height: 1;
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 15px 20px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.4s 0.1s ease both;
+    }
+
+    .filter-bar-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 6px;
+    }
+
+    .filter-bar-label svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .filter-divider { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; }
+
+    .quick-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .qf-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.79rem;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.17s;
+      white-space: nowrap;
+    }
+
+    .qf-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+    .qf-btn.active { background: rgba(79,127,255,0.12); border-color: rgba(79,127,255,0.3); color: var(--accent); font-weight: 600; }
+
+    .date-range-group { display: flex; align-items: center; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+
+    .date-input-wrap { position: relative; }
+
+    input[type="date"] {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.81rem;
+      color: var(--text);
+      outline: none;
+      width: 150px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; opacity: 0.6; }
+    input[type="date"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .date-sep { font-size: 0.78rem; color: var(--muted); }
+
+    .apply-filter-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 7px 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.81rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    .apply-filter-btn:hover { background: #3d6bef; box-shadow: 0 3px 12px rgba(79,127,255,0.3); }
+
+    .reset-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.79rem;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reset-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* ACTIVE FILTER INFO */
+    .active-filter-info {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(79,127,255,0.07);
+      border: 1px solid rgba(79,127,255,0.16);
+      border-radius: 9px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 14px;
+      animation: fadeUp 0.25s ease;
+    }
+
+    .active-filter-info.show { display: flex; }
+    .active-filter-info svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* SECTION HEADER */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; margin-top: 6px; }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .count-badge {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--surface2);
+      color: var(--text2);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    /* PROJECT GRID */
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color 0.2s, transform 0.22s, box-shadow 0.22s;
+      animation: fadeUp 0.4s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 3px;
+      background: var(--proj-color, var(--accent));
+    }
+
+    .project-card:hover { border-color: var(--border2); transform: translateY(-3px); box-shadow: 0 10px 36px rgba(0,0,0,0.28); }
+
+    .project-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+
+    .project-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.93rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      padding-left: 10px;
+    }
+
+    .project-id { font-size: 0.73rem; color: var(--muted); padding-left: 10px; margin-top: 3px; }
+
+    .proj-status-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--proj-color, var(--accent));
+      flex-shrink: 0;
+      margin-top: 5px;
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--proj-color) 20%, transparent);
+    }
+
+    .project-progress-wrap { padding-left: 10px; }
+
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.71rem; color: var(--muted); margin-bottom: 6px; }
+
+    .progress-bar { height: 4px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--proj-color, var(--accent)), color-mix(in srgb, var(--proj-color) 70%, white));
+      border-radius: 4px;
+      transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .project-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-left: 10px;
+      margin-top: 12px;
+    }
+
+    .project-date-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.71rem;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    .project-date-tag svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .proj-task-count { font-size: 0.71rem; color: var(--muted); }
+
+    /* TASK LIST */
+    .task-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 30px; }
+
+    .task-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.2s;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .task-card:nth-child(n+2) { animation-delay: calc(0.05s * var(--i,0)); }
+    .task-card:hover { border-color: var(--border2); }
+
+    .task-check {
+      width: 20px; height: 20px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .task-card.done .task-check { background: var(--success); border-color: var(--success); }
+    .task-check svg { width: 11px; height: 11px; stroke: white; fill: none; stroke-width: 3; }
+
+    .task-info { flex: 1; min-width: 0; }
+
+    .task-title { font-size: 0.875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-card.done .task-title { text-decoration: line-through; color: var(--muted); }
+
+    .task-meta { font-size: 0.74rem; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 7px; }
+    .dot-sep { opacity: 0.4; }
+
+    .status-pill { padding: 3px 10px; border-radius: 20px; font-size: 0.69rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; flex-shrink: 0; }
+    .status-pending { background: rgba(245,166,35,0.12); color: var(--warning); }
+    .status-done { background: rgba(45,212,160,0.12); color: var(--success); }
+    .status-overdue { background: rgba(240,110,110,0.14); color: #f06e6e; }
+
+    .task-card.overdue { border-color: rgba(240,110,110,0.35); }
+    .task-card.overdue .task-check { border-color: rgba(240,110,110,0.5); }
+
+    .due-tag { font-size: 0.7rem; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; }
+    .due-tag.overdue-due { color: #f06e6e; }
+    .due-tag svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .done-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.77rem;
+      font-weight: 500;
+      padding: 5px 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.17s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .done-btn:hover { border-color: var(--success); color: var(--success); background: rgba(45,212,160,0.06); }
+
+    /* FORMS */
+    .forms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(295px, 1fr)); gap: 16px; }
+
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      animation: fadeUp 0.4s 0.15s ease both;
+    }
+
+    .form-card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .form-card-title svg { width: 16px; height: 16px; opacity: 0.65; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 2; }
+
+    .field { margin-bottom: 14px; }
+
+    label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 6px;
+    }
+
+    input:not([type="date"]), select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+
+    input:not([type="date"])::placeholder { color: #2a3048; }
+    input:not([type="date"]):focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a6380' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      padding-right: 30px;
+      cursor: pointer;
+    }
+
+    select option { background: var(--surface2); }
+
+    .btn-primary {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+
+    .btn-primary:hover { opacity: 0.9; box-shadow: 0 4px 18px rgba(79,127,255,0.35); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* EMPTY STATES */
+    .empty-state {
+      background: var(--surface);
+      border: 1px dashed var(--border2);
+      border-radius: var(--radius);
+      padding: 44px 20px;
+      text-align: center;
+    }
+
+    .empty-icon { width: 48px; height: 48px; background: var(--surface2); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .empty-icon svg { width: 22px; height: 22px; stroke: var(--muted); fill: none; stroke-width: 1.5; }
+    .empty-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .empty-sub { font-size: 0.8rem; color: var(--muted); }
+
+    .filtered-out { display: none !important; }
+
+    /* TEAM MEMBERS */
+    .member-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; margin-bottom: 16px; }
+    .member-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 4px 10px; font-size: 0.75rem; color: var(--text);
+    }
+    .member-chip .chip-avatar {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent); color: white;
+      font-size: 0.6rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .member-chip form { margin: 0; }
+    .remove-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 0.8rem; line-height: 1; padding: 0 2px;
+      transition: color 0.2s;
+    }
+    .remove-btn:hover { color: #f06e6e; }
+
+    /* DATE INPUT */
+    input[type="date"] {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color-scheme: dark;
+    }
+    input[type="date"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+      </div>
+      <span class="logo-text">TaskFlow</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Workspace</div>
+    <a class="nav-item active" href="#" onclick="switchView('dashboard',this);return false;">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#" onclick="switchView('tasks',this);return false;">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+      My Tasks
+      <span class="nav-badge" id="nb-tasks">0</span>
+    </a>
+    <a class="nav-item" href="#" onclick="switchView('projects',this);return false;">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+      Projects
+      <span class="nav-badge" id="nb-projects">0</span>
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="avatar">{{ user.username[0]|upper }}</div>
+      <div>
+        <div class="user-name">{{ user.username }}</div>
+        <div class="user-role">{{ user.role }}</div>
+      </div>
+    </div>
+    <a class="logout-btn" href="/logout">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/></svg>
+      Sign out
+    </a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb">TaskFlow <span id="topbar-breadcrumb">/ Dashboard</span></div>
+      <div class="page-title" id="topbar-title">Overview</div>
+    </div>
+    <div class="topbar-right">
+      <span class="badge {% if user.role == 'admin' %}badge-admin{% else %}badge-member{% endif %}">
+        <span class="badge-dot"></span>{{ user.role }}
+      </span>
+    </div>
+  </div>
+
+  <div class="content" id="section-top">
+
+    <!-- ====== VIEW: DASHBOARD ====== -->
+    <div id="view-dashboard">
+
+    <!-- STAT CARDS -->
+    <div class="stats-row">
+      <div class="stat-card" style="--stat-color:#4f7fff;--stat-bg:rgba(79,127,255,0.09)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
+        <div class="stat-label">Total Tasks</div>
+        <div class="stat-value" id="stat-total">{{ tasks|length }}</div>
+      </div>
+      <div class="stat-card" style="--stat-color:#2dd4a0;--stat-bg:rgba(45,212,160,0.09)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="stat-done">{{ tasks|selectattr('status','equalto','done')|list|length }}</div>
+      </div>
+      <div class="stat-card" style="--stat-color:#f5a623;--stat-bg:rgba(245,166,35,0.09)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="stat-pending">{{ tasks|selectattr('status','equalto','pending')|list|length }}</div>
+      </div>
+      <div class="stat-card" style="--stat-color:#f06e6e;--stat-bg:rgba(240,110,110,0.09)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value" id="stat-overdue">{{ overdue_ids|length }}</div>
+      </div>
+      {% if user.role == 'admin' %}
+      <div class="stat-card" style="--stat-color:#7c5cfc;--stat-bg:rgba(124,92,252,0.09)">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></div>
+        <div class="stat-label">Projects</div>
+        <div class="stat-value" id="stat-projects">{{ projects|length }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- DATE FILTER BAR -->
+    <div class="filter-bar">
+      <div class="filter-bar-label">
+        <svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        Filter by Date
+      </div>
+      <div class="filter-divider"></div>
+      <div class="quick-filters">
+        <button class="qf-btn active" onclick="quickFilter('all',this)">All Time</button>
+        <button class="qf-btn" onclick="quickFilter('today',this)">Today</button>
+        <button class="qf-btn" onclick="quickFilter('week',this)">This Week</button>
+        <button class="qf-btn" onclick="quickFilter('month',this)">This Month</button>
+        <button class="qf-btn" onclick="quickFilter('quarter',this)">This Quarter</button>
+      </div>
+      <div class="date-range-group">
+        <div class="date-input-wrap">
+          <input type="date" id="date-from"/>
+        </div>
+        <span class="date-sep">→</span>
+        <div class="date-input-wrap">
+          <input type="date" id="date-to"/>
+        </div>
+        <button class="apply-filter-btn" onclick="applyDateFilter()">Apply</button>
+        <button class="reset-btn" onclick="resetFilter()">Reset</button>
+      </div>
+    </div>
+
+    <!-- Active filter pill -->
+    <div class="active-filter-info" id="filter-info">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="filter-info-text"></span>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="section-header" id="section-projects">
+      <div class="section-title">Projects <span class="count-badge" id="proj-count">{{ projects|length }}</span></div>
+    </div>
+
+    <div class="project-grid" id="project-grid">
+      {% set colors = ['#4f7fff','#7c5cfc','#2dd4a0','#f5a623','#f06e6e','#38bdf8','#fb7185','#a3e635'] %}
+      {% if projects %}
+        {% for p in projects %}
+        <div class="project-card"
+             data-created="{{ p.created_at.strftime('%Y-%m-%d') if p.created_at else '2024-01-01' }}"
+             style="--proj-color:{{ colors[loop.index0 % colors|length] }}; animation-delay: {{ loop.index0 * 0.06 }}s">
+          <div class="project-card-header">
+            <div>
+              <div class="project-name">{{ p.name }}</div>
+              <div class="project-id">Project #{{ p.id }}</div>
+            </div>
+            <div class="proj-status-dot"></div>
+          </div>
+          <div class="project-progress-wrap">
+            <div class="progress-label">
+              <span>Completion</span>
+              <span>{{ (loop.index0 * 23 + 15) % 90 }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:{{ (loop.index0 * 23 + 15) % 90 }}%"></div>
+            </div>
+          </div>
+          <div class="project-footer">
+            <div class="project-date-tag">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              {{ p.created_at.strftime('%b %d, %Y') if p.created_at else 'Jan 01, 2024' }}
+            </div>
+            <div class="proj-task-count">Active</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column:1/-1">
+          <div class="empty-state">
+            <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></div>
+            <div class="empty-title">No projects yet</div>
+            <div class="empty-sub">Create your first project using the form below.</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- no-project filtered empty -->
+    <div class="empty-state" id="proj-empty-filtered" style="display:none;margin-bottom:28px">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+      <div class="empty-title">No projects in this period</div>
+      <div class="empty-sub">Try adjusting your date range.</div>
+    </div>
+
+    <!-- TASKS (dashboard summary) -->
+    <div class="section-header" id="section-tasks">
+      <div class="section-title">My Tasks <span class="count-badge" id="task-count">{{ tasks|length }}</span></div>
+    </div>
+
+    <div class="task-list" id="task-list">
+      {% if tasks %}
+        {% for t in tasks %}
+        {% set is_overdue = t.id in overdue_ids %}
+        <div class="task-card {% if t.status == 'done' %}done{% endif %} {% if is_overdue %}overdue{% endif %}"
+             data-created="{{ t.created_at.strftime('%Y-%m-%d') if t.created_at else '2024-01-01' }}">
+          <div class="task-check">
+            {% if t.status == 'done' %}
+            <svg viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+            {% endif %}
+          </div>
+          <div class="task-info">
+            <div class="task-title">{{ t.title }}</div>
+            <div class="task-meta">
+              Task #{{ t.id }}
+              <span class="dot-sep">·</span>
+              {{ t.created_at.strftime('%b %d, %Y') if t.created_at else 'Jan 01, 2024' }}
+              {% if t.due_date %}
+              <span class="dot-sep">·</span>
+              <span class="due-tag {% if is_overdue %}overdue-due{% endif %}">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Due {{ t.due_date.strftime('%b %d, %Y') }}
+              </span>
+              {% endif %}
+            </div>
+          </div>
+          {% if is_overdue %}
+          <span class="status-pill status-overdue">Overdue</span>
+          {% else %}
+          <span class="status-pill {% if t.status == 'done' %}status-done{% else %}status-pending{% endif %}">{{ t.status }}</span>
+          {% endif %}
+          {% if t.status != 'done' %}
+          <a class="done-btn" href="/update_task/{{ t.id }}">Mark done</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" id="task-empty-init">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
+          <div class="empty-title">No tasks assigned</div>
+          <div class="empty-sub">You're all caught up!</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="empty-state" id="task-empty-filtered" style="display:none;margin-bottom:28px">
+      <div class="empty-icon"><svg viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+      <div class="empty-title">No tasks in this period</div>
+      <div class="empty-sub">Try a different date range.</div>
+    </div>
+
+    <!-- ADMIN FORMS -->
+    {% if user.role == "admin" %}
+    <div class="section-header" style="margin-top:8px">
+      <div class="section-title">Admin Tools</div>
+    </div>
+    <div class="forms-grid">
+
+      <div class="form-card">
+        <div class="form-card-title">
+          <svg viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          New Project
+        </div>
+        <form action="/create_project" method="POST">
+          <div class="field">
+            <label>Project Name</label>
+            <input name="name" placeholder="e.g. Q3 Product Launch" required/>
+          </div>
+          <button class="btn-primary" type="submit">Create Project</button>
+        </form>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
+          New Task
+        </div>
+        <form action="/create_task" method="POST">
+          <div class="field">
+            <label>Task Title</label>
+            <input name="title" placeholder="e.g. Write API documentation" required/>
+          </div>
+          <div class="field">
+            <label>Project</label>
+            <select name="project_id">
+              {% for p in projects %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Assign To</label>
+            <select name="assigned_to">
+              {% for u in users %}
+              <option value="{{ u.id }}">{{ u.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>Due Date</label>
+            <input type="date" name="due_date"/>
+          </div>
+          <button class="btn-primary" type="submit">Create Task</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- TEAM MANAGEMENT -->
+    <div class="section-header" style="margin-top:8px">
+      <div class="section-title">Team Management</div>
+    </div>
+    <div class="forms-grid">
+      <div class="form-card">
+        <div class="form-card-title">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Add Member to Project
+        </div>
+        <form action="/add_member" method="POST">
+          <div class="field">
+            <label>Project</label>
+            <select name="project_id">
+              {% for p in projects %}
+              <option value="{{ p.id }}">{{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label>User</label>
+            <select name="user_id">
+              {% for u in users %}
+              <option value="{{ u.id }}">{{ u.username }} ({{ u.role }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn-primary" type="submit">Add Member</button>
+        </form>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title">
+          <svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+          Project Members
+        </div>
+        {% for p in projects %}
+        <div style="margin-bottom:14px">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;">{{ p.name }}</div>
+          <div class="member-list">
+            {% if project_members.get(p.id) %}
+              {% for m in project_members[p.id] %}
+              <div class="member-chip">
+                <div class="chip-avatar">{{ m.username[0]|upper }}</div>
+                {{ m.username }}
+                <form action="/remove_member" method="POST" style="display:inline">
+                  <input type="hidden" name="project_id" value="{{ p.id }}"/>
+                  <input type="hidden" name="user_id" value="{{ m.id }}"/>
+                  <button class="remove-btn" type="submit" title="Remove">✕</button>
+                </form>
+              </div>
+              {% endfor %}
+            {% else %}
+              <span style="font-size:0.75rem;color:var(--muted)">No members assigned</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    </div><!-- end #view-dashboard -->
+
+    <!-- ====== VIEW: MY TASKS (standalone) ====== -->
+    <div id="view-tasks" style="display:none">
+      <div class="section-header">
+        <div class="section-title">My Tasks <span class="count-badge">{{ tasks|length }}</span></div>
+      </div>
+      <div class="task-list">
+        {% if tasks %}
+          {% for t in tasks %}
+          {% set is_overdue = t.id in overdue_ids %}
+          <div class="task-card {% if t.status == 'done' %}done{% endif %} {% if is_overdue %}overdue{% endif %}">
+            <div class="task-check">
+              {% if t.status == 'done' %}
+              <svg viewBox="0 0 12 12"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>
+              {% endif %}
+            </div>
+            <div class="task-info">
+              <div class="task-title">{{ t.title }}</div>
+              <div class="task-meta">
+                Task #{{ t.id }}
+                <span class="dot-sep">·</span>
+                {{ t.created_at.strftime('%b %d, %Y') if t.created_at else 'Jan 01, 2024' }}
+                {% if t.due_date %}
+                <span class="dot-sep">·</span>
+                <span class="due-tag {% if is_overdue %}overdue-due{% endif %}">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Due {{ t.due_date.strftime('%b %d, %Y') }}
+                </span>
+                {% endif %}
+              </div>
+            </div>
+            {% if is_overdue %}
+            <span class="status-pill status-overdue">Overdue</span>
+            {% else %}
+            <span class="status-pill {% if t.status == 'done' %}status-done{% else %}status-pending{% endif %}">{{ t.status }}</span>
+            {% endif %}
+            {% if t.status != 'done' %}
+            <a class="done-btn" href="/update_task/{{ t.id }}">Mark done</a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg></div>
+            <div class="empty-title">No tasks assigned</div>
+            <div class="empty-sub">You're all caught up!</div>
+          </div>
+        {% endif %}
+      </div>
+    </div><!-- end #view-tasks -->
+
+    <!-- ====== VIEW: PROJECTS (standalone) ====== -->
+    <div id="view-projects" style="display:none">
+      <div class="section-header">
+        <div class="section-title">Projects <span class="count-badge">{{ projects|length }}</span></div>
+      </div>
+      <div class="project-grid">
+        {% set colors = ['#4f7fff','#7c5cfc','#2dd4a0','#f5a623','#f06e6e','#38bdf8','#fb7185','#a3e635'] %}
+        {% if projects %}
+          {% for p in projects %}
+          <div class="project-card"
+               data-created="{{ p.created_at.strftime('%Y-%m-%d') if p.created_at else '2024-01-01' }}"
+               style="--proj-color:{{ colors[loop.index0 % colors|length] }}; animation-delay: {{ loop.index0 * 0.06 }}s">
+            <div class="project-card-header">
+              <div>
+                <div class="project-name">{{ p.name }}</div>
+                <div class="project-id">Project #{{ p.id }}</div>
+              </div>
+              <div class="proj-status-dot"></div>
+            </div>
+            <div class="project-progress-wrap">
+              <div class="progress-label">
+                <span>Completion</span>
+                <span>{{ (loop.index0 * 23 + 15) % 90 }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:{{ (loop.index0 * 23 + 15) % 90 }}%"></div>
+              </div>
+            </div>
+            <div class="project-footer">
+              <div class="project-date-tag">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                {{ p.created_at.strftime('%b %d, %Y') if p.created_at else 'Jan 01, 2024' }}
+              </div>
+              <div class="proj-task-count">Active</div>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="grid-column:1/-1">
+            <div class="empty-state">
+              <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></div>
+              <div class="empty-title">No projects yet</div>
+              <div class="empty-sub">Ask an admin to create a project.</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div><!-- end #view-projects -->
+
+  </div>
+</main>
+
+<script>
+  // ── View switching ──────────────────────────────────────────────
+  const views = { dashboard: 'view-dashboard', tasks: 'view-tasks', projects: 'view-projects' };
+  const titles = { dashboard: ['/ Dashboard', 'Overview'], tasks: ['/ My Tasks', 'My Tasks'], projects: ['/ Projects', 'Projects'] };
+
+  function switchView(name, navEl) {
+    // Hide all views
+    Object.values(views).forEach(id => document.getElementById(id).style.display = 'none');
+    // Show target
+    document.getElementById(views[name]).style.display = '';
+    // Update topbar
+    document.getElementById('topbar-breadcrumb').textContent = titles[name][0];
+    document.getElementById('topbar-title').textContent = titles[name][1];
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    navEl.classList.add('active');
+    // Scroll main back to top
+    document.querySelector('.main').scrollTop = 0;
+  }
+
+  // ── Sidebar nav badges ──────────────────────────────────────────
+  const allTasks = document.querySelectorAll('#task-list .task-card');
+  const allProjs = document.querySelectorAll('#project-grid .project-card');
+  document.getElementById('nb-tasks').textContent = allTasks.length;
+  document.getElementById('nb-projects').textContent = allProjs.length;
+
+  // ── Date filter (dashboard view only) ──────────────────────────
+  function getDateRange(preset) {
+    const now = new Date();
+    let from = new Date(now);
+    const to = new Date(now); to.setHours(23,59,59,999);
+    if (preset === 'today') {
+      from.setHours(0,0,0,0);
+    } else if (preset === 'week') {
+      from.setDate(now.getDate() - now.getDay()); from.setHours(0,0,0,0);
+    } else if (preset === 'month') {
+      from = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else if (preset === 'quarter') {
+      from = new Date(now.getFullYear(), Math.floor(now.getMonth()/3)*3, 1);
+    }
+    return { from, to };
+  }
+
+  function quickFilter(preset, btn) {
+    document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (preset === 'all') {
+      document.getElementById('date-from').value = '';
+      document.getElementById('date-to').value = '';
+      applyFilter(null, null, 'All Time');
+    } else {
+      const { from, to } = getDateRange(preset);
+      document.getElementById('date-from').value = from.toISOString().split('T')[0];
+      document.getElementById('date-to').value = to.toISOString().split('T')[0];
+      const labels = { today:'Today', week:'This Week', month:'This Month', quarter:'This Quarter' };
+      applyFilter(from, to, labels[preset]);
+    }
+  }
+
+  function applyDateFilter() {
+    const f = document.getElementById('date-from').value;
+    const t = document.getElementById('date-to').value;
+    document.querySelectorAll('.qf-btn').forEach(b => b.classList.remove('active'));
+    if (!f && !t) { applyFilter(null, null, 'All Time'); return; }
+    const from = f ? new Date(f + 'T00:00:00') : null;
+    const to   = t ? new Date(t + 'T23:59:59') : null;
+    const label = f && t ? `${f}  →  ${t}` : f ? `From ${f}` : `Until ${t}`;
+    applyFilter(from, to, label);
+  }
+
+  function applyFilter(from, to, label) {
+    let pv = 0;
+    allProjs.forEach(c => {
+      const show = inRange(new Date(c.dataset.created + 'T12:00:00'), from, to);
+      c.classList.toggle('filtered-out', !show);
+      if (show) pv++;
+    });
+    document.getElementById('proj-count').textContent = pv;
+    const pfe = document.getElementById('proj-empty-filtered');
+    if (pfe) pfe.style.display = (allProjs.length > 0 && pv === 0) ? 'block' : 'none';
+
+    let tv = 0;
+    allTasks.forEach(c => {
+      const show = inRange(new Date(c.dataset.created + 'T12:00:00'), from, to);
+      c.classList.toggle('filtered-out', !show);
+      if (show) tv++;
+    });
+    document.getElementById('task-count').textContent = tv;
+    const tef = document.getElementById('task-empty-filtered');
+    const tei = document.getElementById('task-empty-init');
+    if (allTasks.length > 0) {
+      if (tei) tei.style.display = 'none';
+      tef.style.display = tv === 0 ? 'block' : 'none';
+    }
+
+    const info = document.getElementById('filter-info');
+    if (!from && !to) {
+      info.classList.remove('show');
+    } else {
+      document.getElementById('filter-info-text').textContent =
+        `Filtered: ${label}  ·  ${pv} project${pv!==1?'s':''}  ·  ${tv} task${tv!==1?'s':''}`;
+      info.classList.add('show');
+    }
+  }
+
+  function inRange(d, from, to) {
+    if (!from && !to) return true;
+    if (from && d < from) return false;
+    if (to   && d > to)   return false;
+    return true;
+  }
+
+  function resetFilter() {
+    document.getElementById('date-from').value = '';
+    document.getElementById('date-to').value = '';
+    document.querySelectorAll('.qf-btn').forEach((b,i) => b.classList.toggle('active', i===0));
+    applyFilter(null, null, 'All Time');
+  }
+</script>
+</body>
+</html>
